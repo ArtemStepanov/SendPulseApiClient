@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
                     clientSecretToken,
                     provider.GetService<ILogger<SendPulseEmailHttpClient>>(),
                     provider.GetRequiredService<IMemoryCache>()
-                    ),
+                ),
                 lifetime: serviceLifetime)
         );
 
