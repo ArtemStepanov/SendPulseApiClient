@@ -18,17 +18,17 @@ public class SendMailRequest
     public string? Text { get; set; }
 
     [JsonPropertyName("template")]
-    public MailTemplateRequest Template { get; set; }
+    public MailTemplateRequest? Template { get; set; }
 
     [JsonPropertyName("auto_plain_text")]
     public bool AutoPlainText { get; set; }
 
     [JsonPropertyName("subject")]
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     [JsonPropertyName("from")]
-    public SendMailUserData From { get; set; }
+    public SendMailUserData? From { get; set; }
 
     [JsonPropertyName("to")]
-    public List<SendMailUserData> To { get; set; }
+    public List<SendMailUserData> To { get; set; } = new();
 }

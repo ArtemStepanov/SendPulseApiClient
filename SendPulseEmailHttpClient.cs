@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Stxima.SendPulseClient.Models;
 using Stxima.SendPulseClient.Models.Request;
 using Stxima.SendPulseClient.Models.Response;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -17,18 +15,14 @@ public sealed class SendPulseEmailHttpClient : HttpClient, ISendPulseEmailHttpCl
     private readonly IMemoryCache _memoryCache;
     private const string BaseUrl = "https://api.sendpulse.com";
 
-    private SendPulseEmailHttpClient() : base(new HttpClientHandler())
-    {
-        BaseAddress = new Uri(BaseUrl);
-    }
-
     public SendPulseEmailHttpClient(
         string clientId,
         string clientSecretToken,
         ILogger<SendPulseEmailHttpClient>? logger,
         IMemoryCache memoryCache
-    ) : this()
+    )
     {
+        BaseAddress = new Uri(BaseUrl);
         _clientId = clientId;
         _clientSecretToken = clientSecretToken;
         _logger = logger;
@@ -101,7 +95,7 @@ public sealed class SendPulseEmailHttpClient : HttpClient, ISendPulseEmailHttpCl
         );
 
         DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-            parsedResponse.TokenType,
+            parsedResponse.TokenType!,
             parsedResponse.AccessToken
         );
     }

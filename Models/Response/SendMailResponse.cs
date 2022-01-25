@@ -8,5 +8,5 @@ public class SendMailResponse
     public bool Result { get; set; }
 
     [JsonPropertyName("id")]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 }

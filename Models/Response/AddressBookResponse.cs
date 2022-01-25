@@ -23,5 +23,5 @@ public class AddressBookResponse
     public AddressBookStatus Status { get; set; }
 
     [JsonPropertyName("status_explain")]
-    public string StatusExplain { get; set; }
+    public string? StatusExplain { get; set; }
 }

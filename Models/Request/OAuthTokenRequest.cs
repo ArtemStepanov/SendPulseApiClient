@@ -8,8 +8,8 @@ public class OAuthTokenRequest
     public static string GrantType => "client_credentials";
 
     [JsonPropertyName("client_id")]
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
 
     [JsonPropertyName("client_secret")]
-    public string ClientSecret { get; set; }
+    public string? ClientSecret { get; set; }
 }
