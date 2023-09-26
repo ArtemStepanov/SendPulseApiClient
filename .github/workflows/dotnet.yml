@@ -53,7 +53,7 @@ jobs:
         uses: actions/download-artifact@v2.1.1
         with:
           name: ${{ env.ArtifactName }}
-          path: ${{ env.NuGetDirectory }}/*.nupkg
+          path: ${{ env.NuGetDirectory }}
       - name: Install NuGet validator
         run: dotnet tool update Meziantou.Framework.NuGetPackageValidation.Tool --global
       - name: Validate package
@@ -68,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v2.1.1
         with:
           name: ${{ env.ArtifactName }}
-          path: ${{ env.NuGetDirectory }}/*.nupkg
+          path: ${{ env.NuGetDirectory }}
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
