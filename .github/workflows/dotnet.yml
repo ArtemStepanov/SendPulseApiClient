@@ -5,10 +5,11 @@ name: .NET
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
+    inputs:
+      validate:
+        description: 'Validate NuGet package'
+        required: true
+        default: 'false'
 
 env:
   NuGetDirectory: ${{ github.workspace }}/nuget
@@ -42,6 +43,7 @@ jobs:
           retention-days: 7
 
   validate_nuget:
+    if: inputs.validate == 'true'
     runs-on: ubuntu-latest
     needs: create_nuget
     steps:
