@@ -5,6 +5,11 @@ name: .NET
 
 on:
   workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Set to true to deploy the NuGet package'
+        required: false
+        default: 'false'
 
 env:
   NuGetDirectory: ${{ github.workspace }}/nuget
@@ -38,7 +43,8 @@ jobs:
           retention-days: 7
   
   deploy:
-    if: github.event_name == 'release'
+    if: inputs.deploy == 'true'
+    needs: create_nuget
     runs-on: ubuntu-latest
     steps:
       - name: Download NuGet artifact
