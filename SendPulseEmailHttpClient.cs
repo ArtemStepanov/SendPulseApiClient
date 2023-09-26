@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Stxima.SendPulseClient.Configuration;
 using Stxima.SendPulseClient.Models.Request;
 using Stxima.SendPulseClient.Models.Response;
 using System.Net.Http.Headers;
@@ -16,15 +18,15 @@ public sealed class SendPulseEmailHttpClient : HttpClient, ISendPulseEmailHttpCl
     private const string BaseUrl = "https://api.sendpulse.com";
 
     public SendPulseEmailHttpClient(
-        string clientId,
-        string clientSecretToken,
+        IOptions<SendPulseConfiguration> configuration,
         ILogger<SendPulseEmailHttpClient>? logger,
         IMemoryCache memoryCache
     )
     {
         BaseAddress = new Uri(BaseUrl);
-        _clientId = clientId;
-        _clientSecretToken = clientSecretToken;
+        var config = configuration.Value;
+        _clientId = config.ClientId;
+        _clientSecretToken = config.SecretToken;
         _logger = logger;
         _memoryCache = memoryCache;
     }
@@ -57,7 +59,7 @@ public sealed class SendPulseEmailHttpClient : HttpClient, ISendPulseEmailHttpCl
         await AuthorizeAsync(cancellationToken);
 
         var response = await PostAsync(
-            requestUri: $"smtp/emails",
+            requestUri: "smtp/emails",
             content: JsonContent.Create(request),
             cancellationToken: cancellationToken
         );
@@ -70,12 +72,48 @@ public sealed class SendPulseEmailHttpClient : HttpClient, ISendPulseEmailHttpCl
         return parsed!;
     }
 
+    public async Task<List<UnsubscribedCustomer>> GetUnsubscribedCustomersAsync(
+        DateTime? date = null,
+        int? limit = null,
+        int? offset = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await AuthorizeAsync(cancellationToken);
+
+        var url = "smtp/unsubscribe?";
+
+        if (date.HasValue)
+        {
+            url += $"date={date.Value:YYYY-MM-DD}";
+        }
+
+        if (offset.HasValue)
+        {
+            url += $"&offset={offset.Value}";
+        }
+
+        if (limit.HasValue)
+        {
+            url += $"&limit={limit.Value}";
+        }
+
+        var response = await GetAsync(url, cancellationToken);
+
+        await ValidateResponse(response);
+
+        var parsed =
+            await response.Content.ReadFromJsonAsync<List<UnsubscribedCustomer>>(cancellationToken: cancellationToken);
+
+        return parsed!;
+    }
+
     private async Task AuthorizeAsync(CancellationToken cancellationToken = default)
     {
         if (_memoryCache.TryGetValue(CacheKeys.OAuthTokenKey, out _))
             return;
 
-        HttpResponseMessage response = await PostAsync(
+        var response = await PostAsync(
             requestUri: "oauth/access_token",
             content: JsonContent.Create(new OAuthTokenRequest
             {
@@ -85,7 +123,7 @@ public sealed class SendPulseEmailHttpClient : HttpClient, ISendPulseEmailHttpCl
 
         await ValidateResponse(response);
 
-        OAuthTokenResponse parsedResponse =
+        var parsedResponse =
             (await response.Content.ReadFromJsonAsync<OAuthTokenResponse>(cancellationToken: cancellationToken))!;
 
         _memoryCache.Set(
